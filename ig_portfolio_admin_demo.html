@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IG Portfolio — Admin Dashboard</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Inter,Arial,sans-serif;background:#0b0b0e;color:#f4f4f5}
+button,input,textarea{font:inherit}button{cursor:pointer}
+.layout{display:flex;min-height:100vh}.side{width:240px;background:#111116;border-right:1px solid #25252b;padding:24px 16px;position:fixed;height:100vh}
+.logo{font-size:24px;font-weight:900;padding:0 12px 28px}.logo span{color:#800020}
+.nav button{display:block;width:100%;padding:13px 14px;margin:5px 0;border:0;border-radius:9px;background:transparent;color:#aaa;text-align:left}
+.nav button:hover,.nav button.active{background:#241018;color:#fff}.logout{position:absolute;bottom:25px;left:16px;width:calc(100% - 32px);padding:12px;background:#18181d;color:#aaa;border:1px solid #292930;border-radius:9px}
+.main{margin-left:240px;width:calc(100% - 240px);padding:35px 5%}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px}
+h1{font-size:32px;margin:0 0 5px}.muted{color:#92929b}.avatar{width:42px;height:42px;border-radius:50%;background:#800020;display:grid;place-items:center;font-weight:bold}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px}.card{background:#141419;border:1px solid #292930;border-radius:13px;padding:22px}.num{font-size:30px;font-weight:800;margin-top:8px}
+.panel{background:#141419;border:1px solid #292930;border-radius:13px;padding:22px;margin-bottom:22px}
+.panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.panel h2{font-size:20px;margin:0}
+.primary{background:#800020;color:#fff;border:0;border-radius:8px;padding:11px 17px;font-weight:700}.secondary{background:#202026;color:#fff;border:1px solid #303038;border-radius:8px;padding:10px 15px}
+.project{display:flex;gap:15px;align-items:center;border-top:1px solid #25252b;padding:15px 0}.thumb{width:90px;height:58px;border-radius:7px;background:linear-gradient(135deg,#800020,#27272e);display:grid;place-items:center;font-size:20px}.project-info{flex:1}.project-info b{display:block}.actions{display:flex;gap:7px}.actions button{background:#202026;color:#ccc;border:1px solid #303038;border-radius:6px;padding:7px 10px}
+.form{display:grid;gap:15px}.form label{font-size:13px;color:#aaa}.form input,.form textarea{width:100%;margin-top:6px;padding:12px;background:#0d0d10;border:1px solid #303038;border-radius:8px;color:#fff;outline:none}.form textarea{min-height:120px;resize:vertical}.hidden{display:none}
+.toast{position:fixed;right:25px;bottom:25px;background:#fff;color:#111;padding:12px 18px;border-radius:8px;display:none;box-shadow:0 8px 30px #0008}
+@media(max-width:750px){.side{width:68px}.logo{font-size:18px;padding-left:8px}.nav button{font-size:0;text-align:center}.nav button:before{content:"•";font-size:22px}.main{margin-left:68px;width:calc(100% - 68px);padding:25px 4%}.cards{grid-template-columns:1fr}.project{align-items:flex-start}.actions{flex-direction:column}.logout{font-size:0}.logout:before{content:"↪";font-size:20px}}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="side">
+  <div class="logo">IG<span>.</span></div>
+  <div class="nav">
+    <button class="active" onclick="show('dashboard',this)">▦ &nbsp; Dashboard</button>
+    <button onclick="show('portfolio',this)">◈ &nbsp; Portfolio</button>
+    <button onclick="show('about',this)">✎ &nbsp; About Me</button>
+    <button onclick="show('settings',this)">⚙ &nbsp; Settings</button>
+  </div>
+  <button class="logout" onclick="toast('Demo logout — connect real authentication when deploying.')">↪ &nbsp; Logout</button>
+</aside>
+
+<main class="main">
+<section id="dashboard">
+  <div class="top"><div><h1>Welcome back, Israel 👋</h1><div class="muted">Manage your portfolio from one place.</div></div><div class="avatar">IG</div></div>
+  <div class="cards">
+    <div class="card"><div class="muted">Projects</div><div class="num" id="projectCount">3</div></div>
+    <div class="card"><div class="muted">Published Videos</div><div class="num">8</div></div>
+    <div class="card"><div class="muted">Website Status</div><div class="num" style="font-size:20px">● Online</div></div>
+  </div>
+  <div class="panel"><div class="panel-head"><h2>Recent Projects</h2><button class="primary" onclick="show('portfolio')">+ Add Project</button></div><div id="recent"></div></div>
+</section>
+
+<section id="portfolio" class="hidden">
+  <div class="top"><div><h1>Portfolio</h1><div class="muted">Add, edit or remove your projects.</div></div><button class="primary" onclick="openForm()">+ Add Project</button></div>
+  <div class="panel"><div id="projects"></div></div>
+</section>
+
+<section id="about" class="hidden">
+  <div class="top"><div><h1>About Me</h1><div class="muted">Edit what visitors see on your website.</div></div><button class="primary" onclick="saveAbout()">Save Changes</button></div>
+  <div class="panel form">
+    <label>Name<input id="name" value="Israel Getachew"></label>
+    <label>Headline<input id="headline" value="Video Editor & Graphics Designer"></label>
+    <label>Bio<textarea id="bio">I’m a video editor and graphics designer focused on cinematic edits, broadcast content, social media videos and live production.</textarea></label>
+    <label>Experience<input id="experience" value="2 years — Video Editor & Live Editor at EBS TV"></label>
+  </div>
+</section>
+
+<section id="settings" class="hidden">
+  <div class="top"><div><h1>Settings</h1><div class="muted">Basic portfolio settings.</div></div><button class="primary" onclick="saveSettings()">Save Settings</button></div>
+  <div class="panel form">
+    <label>Contact Email<input id="email" value="your@email.com"></label>
+    <label>Instagram<input id="instagram" value="@yourusername"></label>
+    <label>YouTube<input id="youtube" value="youtube.com/@yourusername"></label>
+    <label>Primary Brand Color<input id="brand" value="#800020"></label>
+  </div>
+</section>
+</main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let projects=JSON.parse(localStorage.getItem('igProjects')||'null')||[
+ {title:'Broadcast Editing',desc:'TV programs • Live production • Vmix'},
+ {title:'Cinematic Highlights',desc:'Events • Promos • Story-driven edits'},
+ {title:'Social Media Content',desc:'Reels • TikTok • YouTube • Short-form'}
+];
+function persist(){localStorage.setItem('igProjects',JSON.stringify(projects));render()}
+function render(){
+ document.getElementById('projectCount').textContent=projects.length;
+ let html=projects.map((p,i)=>`<div class="project"><div class="thumb">▶</div><div class="project-info"><b>${esc(p.title)}</b><span class="muted">${esc(p.desc)}</span></div><div class="actions"><button onclick="editProject(${i})">Edit</button><button onclick="deleteProject(${i})">Delete</button></div></div>`).join('');
+ document.getElementById('projects').innerHTML=html||'<p class="muted">No projects yet.</p>';
+ document.getElementById('recent').innerHTML=projects.slice(0,3).map(p=>`<div class="project"><div class="thumb">▶</div><div class="project-info"><b>${esc(p.title)}</b><span class="muted">${esc(p.desc)}</span></div></div>`).join('');
+}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function show(id,btn){
+ document.querySelectorAll('main section').forEach(x=>x.classList.add('hidden'));
+ document.getElementById(id).classList.remove('hidden');
+ document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));
+ if(btn)btn.classList.add('active');
+ if(id==='portfolio')render();
+}
+function openForm(){
+ let title=prompt('Project title:','New Video Project'); if(!title)return;
+ let desc=prompt('Project description:','Video editing • Color • Motion Graphics')||'';
+ projects.push({title,desc});persist();toast('Project added successfully.');
+ show('portfolio');
+}
+function editProject(i){
+ let title=prompt('Edit project title:',projects[i].title); if(title===null)return;
+ let desc=prompt('Edit description:',projects[i].desc)||'';
+ projects[i]={title,desc};persist();toast('Project updated.');
+}
+function deleteProject(i){
+ if(confirm('Delete this project?')){projects.splice(i,1);persist();toast('Project deleted.');}
+}
+function saveAbout(){localStorage.setItem('igAbout',JSON.stringify({name:name.value,headline:headline.value,bio:bio.value,experience:experience.value}));toast('About section saved.')}
+function saveSettings(){localStorage.setItem('igSettings',JSON.stringify({email:email.value,instagram:instagram.value,youtube:youtube.value,brand:brand.value}));toast('Settings saved.')}
+function toast(msg){let t=document.getElementById('toast');t.textContent=msg;t.style.display='block';setTimeout(()=>t.style.display='none',2200)}
+render();
+</script>
+</body>
+</html>
